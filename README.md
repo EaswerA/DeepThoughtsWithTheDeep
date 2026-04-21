@@ -1,3 +1,3 @@
 # DeepThoughtsWithTheDeep
 
-Easwer likes CSK fir some reason 
+Easwer likes CSK for some reason 
