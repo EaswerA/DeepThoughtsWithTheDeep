@@ -1,43 +1,47 @@
 import heapq
 from datetime import date
-from typing import List
-from src.models import Problem, UserProfile
-
-
-def build_heap(problems: List[Problem]) -> List[Problem]:
-    heap = problems[:]
-    heapq.heapify(heap)
-    return heap
+from typing import List, Tuple
+from src.models import Problem
 
 
 def get_due_problems(problems: List[Problem]) -> List[Problem]:
     today = date.today()
-    due = [p for p in problems if p.next_review <= today]
-    heapq.heapify(due)
-    return due
+    return [p for p in problems if p.next_review <= today]
 
 
-def greedy_schedule(problems: List[Problem], available_minutes: int) -> List[Problem]:
+def greedy_schedule(problems: List[Problem], available_minutes: int) -> List[Tuple[Problem, bool]]:
     """
-    Greedy: pick problems by highest urgency_score / estimated_minutes ratio
-    until time budget is exhausted.
+    Returns list of (problem, is_due) tuples.
+    Fills time budget with due problems first (by urgency ratio),
+    then pads remaining time with upcoming problems (by soonest due date).
     """
-    due = get_due_problems(problems)
+    today = date.today()
 
-    candidates = sorted(
-        due,
+    due = sorted(
+        [p for p in problems if p.next_review <= today],
         key=lambda p: p.urgency_score() / max(p.estimated_minutes, 1),
         reverse=True
     )
+    upcoming = sorted(
+        [p for p in problems if p.next_review > today],
+        key=lambda p: p.next_review
+    )
 
-    schedule = []
+    schedule: List[Tuple[Problem, bool]] = []
     remaining = available_minutes
 
-    for problem in candidates:
-        if problem.estimated_minutes <= remaining:
-            schedule.append(problem)
-            remaining -= problem.estimated_minutes
+    for p in due:
+        if p.estimated_minutes <= remaining:
+            schedule.append((p, True))
+            remaining -= p.estimated_minutes
         if remaining <= 0:
             break
+
+    for p in upcoming:
+        if remaining <= 0:
+            break
+        if p.estimated_minutes <= remaining:
+            schedule.append((p, False))
+            remaining -= p.estimated_minutes
 
     return schedule

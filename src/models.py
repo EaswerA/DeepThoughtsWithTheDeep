@@ -9,6 +9,7 @@ class Problem:
     topic: str
     difficulty: str
     estimated_minutes: int
+    leetcode_slug: str = ""
     times_reviewed: int = 0
     ease_factor: float = 2.5
     interval: int = 1
