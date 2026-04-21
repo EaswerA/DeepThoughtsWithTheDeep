@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DSA Revision Planner</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0d14;
+      --surface: #14141f;
+      --surface2: #1c1c2e;
+      --surface3: #22223a;
+      --border: #2a2a45;
+      --accent: #7c6ff7;
+      --accent-dim: #4f4abf;
+      --accent-glow: rgba(124,111,247,0.18);
+      --green: #4ade80;
+      --yellow: #fbbf24;
+      --red: #f87171;
+      --blue: #60a5fa;
+      --text: #e2e2f0;
+      --text2: #8888b0;
+      --text3: #55556a;
+      --radius: 14px;
+      --radius-sm: 8px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--text);
+    }
+    .logo-icon {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--accent), #a78bfa);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+    .nav { display: flex; gap: 4px; }
+    .nav-btn {
+      background: none;
+      border: none;
+      color: var(--text2);
+      padding: 6px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+    .nav-btn:hover { background: var(--surface2); color: var(--text); }
+    .nav-btn.active { background: var(--accent-glow); color: var(--accent); }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .today-badge {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      color: var(--text2);
+    }
+
+    /* ── MAIN ── */
+    .main { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+
+    /* ── PAGES ── */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ── ONBOARDING ── */
+    .onboard-wrap {
+      min-height: calc(100vh - 62px);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .onboard-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 3rem;
+      width: 420px;
+      text-align: center;
+    }
+    .onboard-card h1 { font-size: 1.6rem; margin-bottom: 8px; }
+    .onboard-card p { color: var(--text2); margin-bottom: 2rem; font-size: 0.9rem; line-height: 1.6; }
+    .form-group { text-align: left; margin-bottom: 1.2rem; }
+    .form-group label { display: block; font-size: 0.8rem; color: var(--text2); margin-bottom: 6px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+    .form-group input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .form-group input:focus { border-color: var(--accent); }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 10px 22px;
+      border-radius: var(--radius-sm);
+      border: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--accent-dim); transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-ghost {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { background: var(--surface3); }
+    .btn-full { width: 100%; }
+
+    /* ── STATS ROW ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem 1.4rem;
+    }
+    .stat-label { font-size: 0.75rem; color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+    .stat-value { font-size: 1.8rem; font-weight: 700; }
+    .stat-value.accent { color: var(--accent); }
+    .stat-value.green { color: var(--green); }
+    .stat-value.yellow { color: var(--yellow); }
+    .stat-value.red { color: var(--red); }
+
+    /* ── SECTION HEADER ── */
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .section-title { font-size: 1rem; font-weight: 700; color: var(--text); }
+    .section-subtitle { font-size: 0.8rem; color: var(--text2); margin-top: 2px; }
+
+    /* ── PROBLEM CARDS ── */
+    .problems-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .problem-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.1rem 1.4rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      position: relative;
+      overflow: hidden;
+    }
+    .problem-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      border-radius: 3px 0 0 3px;
+    }
+    .problem-card.easy::before { background: var(--green); }
+    .problem-card.medium::before { background: var(--yellow); }
+    .problem-card.hard::before { background: var(--red); }
+    .problem-card:hover { background: var(--surface2); border-color: var(--accent); transform: translateX(2px); }
+    .problem-num {
+      width: 28px; height: 28px;
+      background: var(--surface2);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text2);
+      flex-shrink: 0;
+    }
+    .problem-info { flex: 1; min-width: 0; }
+    .problem-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 3px; }
+    .problem-meta { display: flex; gap: 8px; align-items: center; }
+    .badge {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 20px;
+      text-transform: capitalize;
+    }
+    .badge-easy { background: rgba(74,222,128,0.15); color: var(--green); }
+    .badge-medium { background: rgba(251,191,36,0.15); color: var(--yellow); }
+    .badge-hard { background: rgba(248,113,113,0.15); color: var(--red); }
+    .badge-topic { background: var(--surface3); color: var(--text2); }
+    .problem-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+    .time-est { font-size: 0.8rem; color: var(--text2); }
+    .overdue-tag {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+      background: rgba(248,113,113,0.15);
+      color: var(--red);
+    }
+    .solve-btn {
+      background: var(--accent-glow);
+      color: var(--accent);
+      border: 1px solid rgba(124,111,247,0.3);
+      padding: 5px 14px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .solve-btn:hover { background: var(--accent); color: #fff; }
+
+    .empty-state {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 3rem;
+      text-align: center;
+      color: var(--text2);
+    }
+    .empty-state .emoji { font-size: 2.5rem; margin-bottom: 1rem; }
+    .empty-state h3 { color: var(--text); margin-bottom: 8px; }
+
+    /* ── PROGRESS PAGE ── */
+    .progress-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .topic-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.4rem;
+    }
+    .topic-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 1rem;
+    }
+    .topic-name { font-size: 1rem; font-weight: 700; }
+    .topic-stats { font-size: 0.8rem; color: var(--text2); }
+    .progress-bar-wrap {
+      background: var(--surface2);
+      border-radius: 999px;
+      height: 8px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), #a78bfa);
+      transition: width 0.6s ease;
+    }
+    .topic-problems {
+      display: flex; flex-wrap: wrap; gap: 6px;
+    }
+    .mini-problem {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      color: var(--text2);
+      cursor: default;
+    }
+    .mini-problem.reviewed { color: var(--text); border-color: var(--accent-dim); }
+    .conf-dot {
+      display: inline-block;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+
+    /* ── UPCOMING ── */
+    .upcoming-list { display: flex; flex-direction: column; gap: 6px; margin-top: 1rem; }
+    .upcoming-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+    }
+    .upcoming-date { color: var(--text2); font-size: 0.8rem; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 200;
+      align-items: center; justify-content: center;
+      padding: 1rem;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      width: 100%;
+      max-width: 520px;
+      animation: slideUp 0.2s ease;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .modal-header {
+      padding: 1.4rem 1.6rem 0;
+      display: flex; justify-content: space-between; align-items: flex-start;
+    }
+    .modal-title { font-size: 1.15rem; font-weight: 700; }
+    .modal-body { padding: 1.2rem 1.6rem; }
+    .modal-footer { padding: 0 1.6rem 1.4rem; display: flex; gap: 10px; justify-content: flex-end; }
+    .close-btn {
+      background: none; border: none; color: var(--text2);
+      cursor: pointer; font-size: 1.2rem; line-height: 1;
+      padding: 4px;
+    }
+    .close-btn:hover { color: var(--text); }
+    .modal-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.2rem; }
+    .modal-section { margin-bottom: 1.4rem; }
+    .modal-section-title { font-size: 0.8rem; color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; font-weight: 600; }
+
+    /* Star rating */
+    .star-rating { display: flex; gap: 8px; }
+    .star-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text2);
+      transition: all 0.15s;
+      flex: 1;
+      text-align: center;
+    }
+    .star-btn:hover { border-color: var(--accent); color: var(--text); }
+    .star-btn.selected { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .rating-labels {
+      display: flex; justify-content: space-between;
+      font-size: 0.7rem; color: var(--text3);
+      margin-top: 4px;
+    }
+
+    .rating-desc {
+      font-size: 0.85rem;
+      color: var(--text2);
+      background: var(--surface2);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      margin-top: 10px;
+      min-height: 42px;
+      transition: all 0.15s;
+    }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 2rem; right: 2rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 18px;
+      font-size: 0.875rem;
+      z-index: 9999;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.25s;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.success { border-color: var(--green); color: var(--green); }
+    .toast.error { border-color: var(--red); color: var(--red); }
+
+    /* ── LOADER ── */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 700px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .main { padding: 1rem; }
+      .problem-right .solve-btn { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header" id="header" style="display:none;">
+  <div class="logo">
+    <div class="logo-icon">&#9650;</div>
+    DSA Planner
+  </div>
+  <nav class="nav">
+    <button class="nav-btn active" onclick="showPage('dashboard')">Dashboard</button>
+    <button class="nav-btn" onclick="showPage('progress')">Progress</button>
+  </nav>
+  <div class="header-right">
+    <span class="today-badge" id="today-badge">Today</span>
+  </div>
+</header>
+
+<!-- ONBOARDING -->
+<div id="page-onboard" class="page active">
+  <div class="onboard-wrap">
+    <div class="onboard-card">
+      <div style="font-size:2.5rem;margin-bottom:1rem;">&#9650;</div>
+      <h1>DSA Revision Planner</h1>
+      <p>Smart scheduling powered by Spaced Repetition (SM-2) and Priority Queues. Stop forgetting what you solved.</p>
+      <div class="form-group">
+        <label>Your Name</label>
+        <input type="text" id="ob-name" placeholder="e.g. Alex" />
+      </div>
+      <div class="form-group">
+        <label>Daily Study Time (minutes)</label>
+        <input type="number" id="ob-minutes" placeholder="e.g. 90" min="10" max="480" />
+      </div>
+      <button class="btn btn-primary btn-full" onclick="submitOnboard()">Get Started</button>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="page-dashboard" class="page">
+  <div class="main">
+    <div id="stats-row" class="stats-row"></div>
+    <div class="section-header">
+      <div>
+        <div class="section-title">Today's Schedule</div>
+        <div class="section-subtitle" id="schedule-subtitle"></div>
+      </div>
+      <button class="btn btn-ghost" onclick="loadDashboard()" style="font-size:0.8rem;padding:6px 14px;">Refresh</button>
+    </div>
+    <div id="problems-list" class="problems-grid">
+      <div style="text-align:center;padding:2rem;color:var(--text2)"><span class="spinner"></span></div>
+    </div>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div id="page-progress" class="page">
+  <div class="main">
+    <div class="section-header" style="margin-bottom:1.5rem;">
+      <div>
+        <div class="section-title">Progress by Topic</div>
+        <div class="section-subtitle">Track retention across all topics</div>
+      </div>
+    </div>
+    <div id="progress-content">
+      <div style="text-align:center;padding:2rem;color:var(--text2)"><span class="spinner"></span></div>
+    </div>
+  </div>
+</div>
+
+<!-- SOLVE MODAL -->
+<div class="modal-overlay" id="solve-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modal-title">Problem Title</div>
+        <div class="modal-meta" id="modal-meta"></div>
+      </div>
+      <button class="close-btn" onclick="closeModal()">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div id="modal-step-solve">
+        <p style="color:var(--text2);font-size:0.9rem;line-height:1.6;margin-bottom:1.2rem;">
+          Open this problem on LeetCode, solve it, then come back here to log your confidence.
+        </p>
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem;margin-bottom:1.2rem;font-size:0.85rem;color:var(--text2);">
+          <strong style="color:var(--text);">SM-2 Tip:</strong> Your confidence rating determines when you'll see this problem again. Be honest — rating too high means you won't review it when you should.
+        </div>
+        <button class="btn btn-primary btn-full" onclick="showRatingStep()">I've solved it — rate my confidence</button>
+      </div>
+
+      <div id="modal-step-rate" style="display:none;">
+        <div class="modal-section">
+          <div class="modal-section-title">How well did you recall this?</div>
+          <div class="star-rating" id="star-rating">
+            <button class="star-btn" data-rating="1" onclick="selectRating(1)">1</button>
+            <button class="star-btn" data-rating="2" onclick="selectRating(2)">2</button>
+            <button class="star-btn" data-rating="3" onclick="selectRating(3)">3</button>
+            <button class="star-btn" data-rating="4" onclick="selectRating(4)">4</button>
+            <button class="star-btn" data-rating="5" onclick="selectRating(5)">5</button>
+          </div>
+          <div class="rating-labels">
+            <span>Complete blackout</span>
+            <span>Perfect recall</span>
+          </div>
+          <div class="rating-desc" id="rating-desc">Select a rating above.</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" id="submit-rating-btn" onclick="submitRating()" style="display:none;">Submit</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  const RATINGS = {
+    1: "Complete blackout — couldn't remember anything.",
+    2: "Incorrect but remembered upon seeing the solution.",
+    3: "Correct, but with significant difficulty.",
+    4: "Correct after some hesitation.",
+    5: "Perfect recall — solved it confidently."
+  };
+
+  let currentProblemId = null;
+  let selectedRating = null;
+  let scheduleData = [];
+
+  // ── INIT ──────────────────────────────────────────────
+  async function init() {
+    const res = await fetch('/api/profile');
+    const profile = await res.json();
+    if (!profile) {
+      showOnboarding();
+    } else {
+      showApp();
+      loadDashboard();
+    }
+  }
+
+  function showOnboarding() {
+    document.getElementById('page-onboard').classList.add('active');
+    document.getElementById('header').style.display = 'none';
+  }
+
+  function showApp() {
+    document.getElementById('page-onboard').classList.remove('active');
+    document.getElementById('header').style.display = 'flex';
+    const today = new Date().toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
+    document.getElementById('today-badge').textContent = today;
+    showPage('dashboard');
+  }
+
+  function showPage(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    document.querySelector(`.nav-btn[onclick="showPage('${name}')"]`).classList.add('active');
+    if (name === 'progress') loadProgress();
+  }
+
+  // ── ONBOARD ──────────────────────────────────────────
+  async function submitOnboard() {
+    const name = document.getElementById('ob-name').value.trim();
+    const minutes = parseInt(document.getElementById('ob-minutes').value);
+    if (!name) return showToast('Enter your name', 'error');
+    if (!minutes || minutes < 10) return showToast('Enter a valid time (≥10 min)', 'error');
+    const res = await fetch('/api/profile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, daily_minutes: minutes })
+    });
+    if (res.ok) {
+      showApp();
+      loadDashboard();
+    }
+  }
+
+  // ── DASHBOARD ─────────────────────────────────────────
+  async function loadDashboard() {
+    document.getElementById('problems-list').innerHTML =
+      '<div style="text-align:center;padding:2rem;color:var(--text2)"><span class="spinner"></span></div>';
+
+    const res = await fetch('/api/schedule');
+    if (!res.ok) return;
+    const data = await res.json();
+    scheduleData = data.schedule;
+
+    renderStats(data);
+    renderSchedule(data.schedule, data.profile.daily_minutes);
+  }
+
+  function renderStats(data) {
+    const due = data.due_count;
+    const scheduled = data.schedule.length;
+    const totalMins = data.schedule.reduce((s, p) => s + p.estimated_minutes, 0);
+    const overdue = data.schedule.filter(p => p.days_overdue > 0).length;
+
+    document.getElementById('stats-row').innerHTML = `
+      <div class="stat-card">
+        <div class="stat-label">Due Today</div>
+        <div class="stat-value accent">${due}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Scheduled</div>
+        <div class="stat-value green">${scheduled}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Est. Time</div>
+        <div class="stat-value yellow">${totalMins}<span style="font-size:1rem;color:var(--text2)"> min</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Overdue</div>
+        <div class="stat-value ${overdue > 0 ? 'red' : 'green'}">${overdue}</div>
+      </div>
+    `;
+    document.getElementById('schedule-subtitle').textContent =
+      `${scheduled} problems · ${totalMins} min · budget: ${data.profile.daily_minutes} min`;
+  }
+
+  function renderSchedule(problems, budget) {
+    if (!problems.length) {
+      document.getElementById('problems-list').innerHTML = `
+        <div class="empty-state">
+          <div class="emoji">&#127881;</div>
+          <h3>All caught up!</h3>
+          <p>Nothing is due today. Come back tomorrow or reduce your daily budget.</p>
+        </div>`;
+      return;
+    }
+
+    document.getElementById('problems-list').innerHTML = problems.map((p, i) => `
+      <div class="problem-card ${p.difficulty}" onclick="openSolveModal('${p.id}')">
+        <div class="problem-num">${i + 1}</div>
+        <div class="problem-info">
+          <div class="problem-title">${p.title}</div>
+          <div class="problem-meta">
+            <span class="badge badge-${p.difficulty}">${p.difficulty}</span>
+            <span class="badge badge-topic">${p.topic}</span>
+            ${p.days_overdue > 0 ? `<span class="overdue-tag">+${p.days_overdue}d overdue</span>` : ''}
+          </div>
+        </div>
+        <div class="problem-right">
+          <span class="time-est">~${p.estimated_minutes}m</span>
+          <button class="solve-btn" onclick="event.stopPropagation();openSolveModal('${p.id}')">Solve</button>
+        </div>
+      </div>`).join('');
+  }
+
+  // ── SOLVE MODAL ───────────────────────────────────────
+  function openSolveModal(problemId) {
+    const p = scheduleData.find(x => x.id === problemId);
+    if (!p) return;
+    currentProblemId = problemId;
+    selectedRating = null;
+
+    document.getElementById('modal-title').textContent = p.title;
+    document.getElementById('modal-meta').innerHTML = `
+      <span class="badge badge-${p.difficulty}">${p.difficulty}</span>
+      <span class="badge badge-topic">${p.topic}</span>
+      <span class="time-est" style="font-size:0.8rem;color:var(--text2)">~${p.estimated_minutes} min</span>
+    `;
+
+    document.getElementById('modal-step-solve').style.display = 'block';
+    document.getElementById('modal-step-rate').style.display = 'none';
+    document.getElementById('submit-rating-btn').style.display = 'none';
+    document.querySelectorAll('.star-btn').forEach(b => b.classList.remove('selected'));
+    document.getElementById('rating-desc').textContent = 'Select a rating above.';
+
+    document.getElementById('solve-modal').classList.add('open');
+  }
+
+  function showRatingStep() {
+    document.getElementById('modal-step-solve').style.display = 'none';
+    document.getElementById('modal-step-rate').style.display = 'block';
+  }
+
+  function selectRating(r) {
+    selectedRating = r;
+    document.querySelectorAll('.star-btn').forEach(b => b.classList.remove('selected'));
+    document.querySelector(`.star-btn[data-rating="${r}"]`).classList.add('selected');
+    document.getElementById('rating-desc').textContent = RATINGS[r];
+    document.getElementById('submit-rating-btn').style.display = 'inline-flex';
+  }
+
+  async function submitRating() {
+    if (!selectedRating) return;
+    const btn = document.getElementById('submit-rating-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>';
+
+    const res = await fetch(`/api/problems/${currentProblemId}/review`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rating: selectedRating })
+    });
+
+    btn.disabled = false;
+    btn.textContent = 'Submit';
+
+    if (res.ok) {
+      const updated = await res.json();
+      closeModal();
+      showToast(`Next review in ${updated.interval} day(s) — ${updated.next_review}`, 'success');
+      await loadDashboard();
+    } else {
+      showToast('Something went wrong', 'error');
+    }
+  }
+
+  function closeModal() {
+    document.getElementById('solve-modal').classList.remove('open');
+    currentProblemId = null;
+    selectedRating = null;
+  }
+
+  document.getElementById('solve-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  // ── PROGRESS ─────────────────────────────────────────
+  async function loadProgress() {
+    document.getElementById('progress-content').innerHTML =
+      '<div style="text-align:center;padding:2rem;color:var(--text2)"><span class="spinner"></span></div>';
+
+    const res = await fetch('/api/progress');
+    const data = await res.json();
+    renderProgress(data);
+  }
+
+  function confColor(c) {
+    if (c === 0) return 'var(--text3)';
+    if (c <= 2) return 'var(--red)';
+    if (c <= 3) return 'var(--yellow)';
+    return 'var(--green)';
+  }
+
+  function renderProgress(data) {
+    const topicHtml = Object.entries(data.topics).map(([topic, info]) => {
+      const pct = info.total ? Math.round((info.reviewed / info.total) * 100) : 0;
+      const confPct = Math.round((info.avg_confidence / 5) * 100);
+      const probs = info.problems.map(p => `
+        <div class="mini-problem ${p.times_reviewed > 0 ? 'reviewed' : ''}">
+          <span class="conf-dot" style="background:${confColor(p.confidence)}"></span>${p.title}
+        </div>`).join('');
+
+      return `
+        <div class="topic-card">
+          <div class="topic-header">
+            <div class="topic-name">${topic}</div>
+            <div class="topic-stats">${info.reviewed}/${info.total} reviewed &nbsp;·&nbsp; avg confidence ${info.avg_confidence}/5</div>
+          </div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill" style="width:${confPct}%"></div>
+          </div>
+          <div class="topic-problems">${probs}</div>
+        </div>`;
+    }).join('');
+
+    const summaryHtml = `
+      <div class="stats-row" style="margin-bottom:1.5rem;">
+        <div class="stat-card">
+          <div class="stat-label">Total Problems</div>
+          <div class="stat-value accent">${data.total_problems}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Reviewed</div>
+          <div class="stat-value green">${data.total_reviewed}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Due Today</div>
+          <div class="stat-value ${data.due_today.length > 0 ? 'yellow' : 'green'}">${data.due_today.length}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Topics</div>
+          <div class="stat-value">${Object.keys(data.topics).length}</div>
+        </div>
+      </div>`;
+
+    const upcomingHtml = data.upcoming.length ? `
+      <div class="section-header" style="margin-top:2rem;margin-bottom:1rem;">
+        <div class="section-title">Upcoming Reviews</div>
+      </div>
+      <div class="upcoming-list">
+        ${data.upcoming.map(p => `
+          <div class="upcoming-item">
+            <span>${p.title} <span class="badge badge-${p.difficulty}" style="margin-left:6px">${p.difficulty}</span></span>
+            <span class="upcoming-date">${p.next_review}</span>
+          </div>`).join('')}
+      </div>` : '';
+
+    document.getElementById('progress-content').innerHTML =
+      summaryHtml +
+      '<div class="section-header" style="margin-bottom:1rem;"><div class="section-title">Topic Breakdown</div></div>' +
+      '<div class="progress-grid">' + topicHtml + '</div>' +
+      upcomingHtml;
+  }
+
+  // ── TOAST ─────────────────────────────────────────────
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + type;
+    setTimeout(() => { t.className = 'toast'; }, 3000);
+  }
+
+  // ── KEYBOARD ──────────────────────────────────────────
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+  });
+
+  init();
+</script>
+</body>
+</html>
